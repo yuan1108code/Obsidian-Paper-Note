@@ -49,4 +49,13 @@ output/
 tmp/
 temp/
 *.tmp
-*.baksrc/main/python/config/.env
+*.bak
+
+# Environment variables and secrets
+.env
+src/main/python/config/.env
+config/.env
+
+# Upload files
+uploads/
+src/main/python/uploads/

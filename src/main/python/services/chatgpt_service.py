@@ -6,7 +6,12 @@ class ChatGPTService:
     """Service for OpenAI ChatGPT API integration"""
     
     def __init__(self):
-        self.client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
+        if not settings.openai_api_key:
+            raise Exception("OpenAI API key not found. Please check your .env file.")
+        self.client = openai.AsyncOpenAI(
+            api_key=settings.openai_api_key,
+            timeout=60.0  # 60 seconds timeout
+        )
     
     async def generate_summary(
         self, 
@@ -59,6 +64,10 @@ class ChatGPTService:
             
             return response.choices[0].message.content.strip()
             
+        except openai.APIConnectionError as e:
+            raise Exception(f"網路連接失敗，請檢查網路連線: {str(e)}")
+        except openai.APIError as e:
+            raise Exception(f"OpenAI API 錯誤: {str(e)}")
         except Exception as e:
             raise Exception(f"摘要生成失敗: {str(e)}")
     

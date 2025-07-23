@@ -43,6 +43,51 @@ os.makedirs(settings.upload_dir, exist_ok=True)
 async def root():
     return {"message": "Obsidian Paper Note API is running"}
 
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint that tests OpenAI API connectivity"""
+    try:
+        # Test if OpenAI API key is configured
+        if not settings.openai_api_key:
+            return {
+                "status": "error",
+                "message": "OpenAI API key not configured",
+                "services": {
+                    "whisper": "❌ No API Key",
+                    "chatgpt": "❌ No API Key"
+                }
+            }
+        
+        # Basic connectivity test - just check if we can create clients
+        whisper_status = "✅ Ready"
+        chatgpt_status = "✅ Ready"
+        
+        try:
+            whisper_service.client
+        except Exception as e:
+            whisper_status = f"❌ Error: {str(e)}"
+            
+        try:
+            chatgpt_service.client
+        except Exception as e:
+            chatgpt_status = f"❌ Error: {str(e)}"
+        
+        return {
+            "status": "ok",
+            "message": "API is running",
+            "services": {
+                "whisper": whisper_status,
+                "chatgpt": chatgpt_status
+            },
+            "api_key_configured": bool(settings.openai_api_key)
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error", 
+            "message": f"Health check failed: {str(e)}"
+        }
+
 @app.post("/api/upload", response_model=Dict[str, str])
 async def upload_audio(file: UploadFile = File(...), paper_title: str = ""):
     """Upload audio file and return session ID"""

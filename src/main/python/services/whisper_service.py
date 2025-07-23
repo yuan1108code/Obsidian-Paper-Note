@@ -7,7 +7,12 @@ class WhisperService:
     """Service for OpenAI Whisper API integration"""
     
     def __init__(self):
-        self.client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
+        if not settings.openai_api_key:
+            raise Exception("OpenAI API key not found. Please check your .env file.")
+        self.client = openai.AsyncOpenAI(
+            api_key=settings.openai_api_key,
+            timeout=60.0  # 60 seconds timeout
+        )
     
     async def transcribe_audio(
         self, 
@@ -47,6 +52,10 @@ class WhisperService:
                 
                 return response
                 
+        except openai.APIConnectionError as e:
+            raise Exception(f"網路連接失敗，請檢查網路連線: {str(e)}")
+        except openai.APIError as e:
+            raise Exception(f"OpenAI API 錯誤: {str(e)}")
         except Exception as e:
             raise Exception(f"語音辨識失敗: {str(e)}")
     
