@@ -49,4 +49,4 @@ output/
 tmp/
 temp/
 *.tmp
-*.bak
+*.baksrc/main/python/config/.env
