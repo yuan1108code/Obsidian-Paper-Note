@@ -74,7 +74,10 @@ export const copyToClipboard = async (text) => {
 
 // WebSocket connection utility
 export const createWebSocketConnection = (sessionId) => {
-  const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/${sessionId}`;
+  // Use the same base URL as API but with WebSocket protocol
+  const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+  const wsBaseUrl = baseUrl.replace('http://', 'ws://').replace('https://', 'wss://');
+  const wsUrl = `${wsBaseUrl}/ws/${sessionId}`;
   
   try {
     return new WebSocket(wsUrl);
