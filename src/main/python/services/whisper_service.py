@@ -1,5 +1,4 @@
 import openai
-import aiofiles
 from typing import Optional
 from config.settings import settings
 
@@ -39,8 +38,8 @@ class WhisperService:
             
             prompt = custom_prompt or default_prompt
             
-            # Read audio file
-            async with aiofiles.open(file_path, 'rb') as audio_file:
+            # Read audio file - OpenAI API requires standard file object, not async file
+            with open(file_path, 'rb') as audio_file:
                 # Call Whisper API
                 response = await self.client.audio.transcriptions.create(
                     model=settings.whisper_model,
