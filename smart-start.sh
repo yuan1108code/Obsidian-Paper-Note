@@ -102,12 +102,55 @@ cd ../react
 # Set React environment variable for API URL
 export REACT_APP_API_URL="http://localhost:$BACKEND_PORT"
 
-# Start frontend
-echo -e "${YELLOW}📱 Frontend will be available at: http://localhost:3000${NC}"
-echo -e "${YELLOW}🔗 Backend API running at: http://localhost:$BACKEND_PORT${NC}"
+# Find available port for frontend
+FRONTEND_PORTS=(3000 3001 3002 3003 3004)
+FRONTEND_PORT=""
 
-# Start frontend (this will block)
-npm start
+echo "🔍 Finding available port for frontend..."
+for port in "${FRONTEND_PORTS[@]}"; do
+    if lsof -i :$port >/dev/null 2>&1; then
+        echo -e "${YELLOW}⚠️  Port $port is busy${NC}"
+        # Try to stop existing React development server
+        if [ "$port" = "3000" ]; then
+            echo -e "${YELLOW}🛑 Attempting to stop existing React server on port $port...${NC}"
+            pkill -f "react-scripts.*start" 2>/dev/null || true
+            pkill -f "node.*react-scripts/scripts/start.js" 2>/dev/null || true
+            sleep 3
+            # Check if port is now available
+            if ! lsof -i :$port >/dev/null 2>&1; then
+                FRONTEND_PORT=$port
+                echo -e "${GREEN}✅ Successfully freed port $port${NC}"
+                break
+            fi
+        fi
+    else
+        FRONTEND_PORT=$port
+        echo -e "${GREEN}✅ Found available frontend port: $port${NC}"
+        break
+    fi
+done
+
+if [ -z "$FRONTEND_PORT" ]; then
+    echo -e "${RED}❌ No available frontend ports found. Please manually stop React servers.${NC}"
+    exit 1
+fi
+
+# Set environment variables
+export PORT=$FRONTEND_PORT
+export REACT_APP_API_URL="http://localhost:$BACKEND_PORT"
+
+# Start frontend
+echo -e "${YELLOW}📱 Starting frontend on port $FRONTEND_PORT...${NC}"
+echo -e "${YELLOW}🔗 Backend API running at: http://localhost:$BACKEND_PORT${NC}"
+echo -e "${BLUE}🌐 Frontend will be available at: http://localhost:$FRONTEND_PORT${NC}"
+
+# Start frontend (this will block) with automatic port selection
+if [ "$FRONTEND_PORT" = "3000" ]; then
+    npm start
+else
+    # For non-3000 ports, React will ask for confirmation - auto-answer Y
+    echo "Y" | PORT=$FRONTEND_PORT npm start
+fi
 
 # Cleanup when script exits
 cleanup() {
