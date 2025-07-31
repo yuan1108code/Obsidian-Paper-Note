@@ -21,10 +21,15 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware
+# CORS middleware - Allow multiple frontend ports
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React dev server
+    allow_origins=[
+        "http://localhost:3000",  # React dev server default
+        "http://localhost:3001",  # React dev server alternative
+        "http://localhost:3002",  # React dev server alternative
+        "http://localhost:3003",  # React dev server alternative
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
