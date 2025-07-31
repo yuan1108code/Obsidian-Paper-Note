@@ -105,26 +105,30 @@ Before starting ANY task, verify:
 ## 🚀 COMMON COMMANDS
 
 ```bash
-# Start complete development environment (recommended)
-./start-dev.sh
+# 🌟 RECOMMENDED: Smart start with auto port detection
+./smart-start.sh
 
-# Start backend only
-./start-backend.sh
-
-# Start frontend only  
-./start-frontend.sh
+# Alternative startup methods
+./start-dev.sh                                     # Complete development environment
+./start-backend.sh                                 # Backend only
+./start-frontend.sh                                # Frontend only  
 
 # Manual startup (if needed)
-cd src/main/python && python3 main.py              # Backend on :8000
+cd src/main/python && python3 main.py              # Backend (auto-detects port)
 cd src/main/react && npm start                     # Frontend on :3000
 
 # Install dependencies
 pip install -r requirements.txt                    # Python backend
 cd src/main/react && npm install                   # React frontend
 
-# Test endpoints
-curl http://localhost:8000/api/health              # Backend health check
+# Test endpoints (adjust port as needed)
+curl http://localhost:8001/api/health              # Backend health check
 curl http://localhost:3000                         # Frontend health check
+
+# Port management
+lsof -i :8000 -i :8001 -i :8080 -i :3001 -i :5000 # Check port usage
+pkill -f "python.*main.py"                         # Stop backend
+pkill -f "npm start"                               # Stop frontend
 ```
 
 ## 🚨 TECHNICAL DEBT PREVENTION

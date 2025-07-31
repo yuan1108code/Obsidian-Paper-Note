@@ -25,6 +25,7 @@ function App() {
     port: null,
     initializing: true
   });
+  const [isReconnecting, setIsReconnecting] = useState(false);
 
   // Custom hooks for WebSocket and audio processing
   const { connectWebSocket, disconnectWebSocket } = useWebSocket(sessionId, {
@@ -71,6 +72,27 @@ function App() {
     
     initializeAPI();
   }, []);
+
+  // Manual reconnect function
+  const handleReconnect = async () => {
+    setIsReconnecting(true);
+    setBackendStatus(prev => ({ ...prev, initializing: true }));
+    
+    const success = await initializeApiService();
+    const info = getBackendInfo();
+    
+    setBackendStatus({
+      connected: success,
+      port: info.port,
+      initializing: false
+    });
+    
+    setIsReconnecting(false);
+    
+    if (success) {
+      console.log(`🔄 Reconnected to backend on port ${info.port}`);
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -120,14 +142,38 @@ function App() {
             backgroundColor: backendStatus.connected ? '#e8f5e8' : backendStatus.initializing ? '#fff3cd' : '#f8d7da',
             borderRadius: '4px',
             fontSize: '14px',
-            color: backendStatus.connected ? '#2e7d32' : backendStatus.initializing ? '#856404' : '#721c24'
+            color: backendStatus.connected ? '#2e7d32' : backendStatus.initializing ? '#856404' : '#721c24',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}>
-            {backendStatus.initializing ? (
-              '🔍 正在檢測後端服務器...'
-            ) : backendStatus.connected ? (
-              `✅ 後端已連接 (localhost:${backendStatus.port})`
-            ) : (
-              '❌ 後端連接失敗 - 請檢查服務器狀態'
+            <span>
+              {backendStatus.initializing ? (
+                '🔍 正在檢測後端服務器...'
+              ) : backendStatus.connected ? (
+                `✅ 後端已連接 (localhost:${backendStatus.port})`
+              ) : (
+                '❌ 後端連接失敗 - 請檢查服務器狀態'
+              )}
+            </span>
+            
+            {!backendStatus.connected && !backendStatus.initializing && (
+              <button
+                onClick={handleReconnect}
+                disabled={isReconnecting}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '12px',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '3px',
+                  cursor: isReconnecting ? 'not-allowed' : 'pointer',
+                  opacity: isReconnecting ? 0.6 : 1
+                }}
+              >
+                {isReconnecting ? '重連中...' : '🔄 重新連接'}
+              </button>
             )}
           </div>
         </header>
