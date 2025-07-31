@@ -126,7 +126,7 @@ const ExportSection = ({ paperTitle, content }) => {
                 ...prev, 
                 vaultName: e.target.value 
               }))}
-              placeholder="預設為 Paper-Note"
+              placeholder="預設為 Obsidian Vault"
               className="input"
               style={{ fontSize: '14px', padding: '8px' }}
             />

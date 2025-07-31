@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     temperature: float = 0.3
     
     # Obsidian Settings
-    default_obsidian_vault: str = os.getenv("DEFAULT_OBSIDIAN_VAULT", "Paper-Note")
+    default_obsidian_vault: str = os.getenv("DEFAULT_OBSIDIAN_VAULT", "Obsidian Vault")
     default_paper_path: str = os.getenv("DEFAULT_PAPER_PATH", "Papers/Summaries")
     
     # Server Settings
