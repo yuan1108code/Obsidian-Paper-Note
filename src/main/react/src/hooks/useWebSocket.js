@@ -37,12 +37,13 @@ export const useWebSocket = (sessionId, { onProgress, onResults }) => {
 
           // Update results if available
           if (data.data && onResults) {
-            if (data.data.transcript) {
-              onResults(prev => ({ ...prev, transcript: data.data.transcript }));
-            }
-            if (data.data.summary) {
-              onResults(prev => ({ ...prev, summary: data.data.summary }));
-            }
+            onResults(prev => ({
+              ...prev,
+              ...(data.data.transcript && { transcript: data.data.transcript }),
+              ...(data.data.summary && { summary: data.data.summary }),
+              ...(data.data.obsidian_uri && { obsidian_uri: data.data.obsidian_uri }),
+              ...(data.data.paper_title && { paper_title: data.data.paper_title })
+            }));
           }
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);

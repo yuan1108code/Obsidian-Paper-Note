@@ -4,6 +4,8 @@ import InputSection from './components/InputSection';
 import ResultTabs from './components/ResultTabs';
 import ExportSection from './components/ExportSection';
 import ProgressIndicator from './components/ProgressIndicator';
+import MarkdownPreview from './components/MarkdownPreview';
+import ObsidianResult from './components/ObsidianResult';
 import { useWebSocket } from './hooks/useWebSocket';
 import { useAudioProcessing } from './hooks/useAudioProcessing';
 import { initializeApiService, getBackendInfo } from './services/apiService';
@@ -18,7 +20,9 @@ function App() {
   });
   const [results, setResults] = useState({
     transcript: '',
-    summary: ''
+    summary: '',
+    obsidian_uri: '',
+    paper_title: ''
   });
   const [backendStatus, setBackendStatus] = useState({
     connected: false,
@@ -206,8 +210,24 @@ function App() {
           />
         )}
 
-        {/* Block C: Export & Save */}
+        {/* Block C: Markdown Preview */}
         {results.summary && (
+          <MarkdownPreview 
+            content={results.summary}
+            title={results.paper_title || paperTitle}
+          />
+        )}
+
+        {/* Block D: Obsidian Integration */}
+        {results.obsidian_uri && (
+          <ObsidianResult 
+            obsidianUri={results.obsidian_uri}
+            paperTitle={results.paper_title || paperTitle}
+          />
+        )}
+
+        {/* Block E: Export & Save (Legacy) */}
+        {results.summary && !results.obsidian_uri && (
           <ExportSection 
             paperTitle={paperTitle}
             content={results.summary}
