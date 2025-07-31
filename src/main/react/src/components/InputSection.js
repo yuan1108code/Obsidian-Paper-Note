@@ -21,7 +21,7 @@ const InputSection = ({
       'audio/*': ['.mp3', '.m4a', '.wav', '.mp4', '.flac', '.ogg']
     },
     maxFiles: 1,
-    maxSize: 25 * 1024 * 1024, // 25MB
+    maxSize: 30 * 1024 * 1024, // 30MB
     disabled: isDisabled
   });
 
@@ -82,7 +82,7 @@ const InputSection = ({
                   支援格式：MP3, M4A, WAV, MP4, FLAC, OGG
                 </p>
                 <p style={{ fontSize: '0.8rem', color: '#999' }}>
-                  檔案大小限制：25MB
+                  檔案大小限制：30MB
                 </p>
               </div>
             )}

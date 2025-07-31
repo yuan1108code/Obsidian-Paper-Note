@@ -14,9 +14,9 @@ export const useAudioProcessing = ({ onSessionCreated, onError }) => {
     setIsUploading(true);
     try {
       // Validate file size
-      const maxSize = 25 * 1024 * 1024; // 25MB
+      const maxSize = 30 * 1024 * 1024; // 30MB
       if (file.size > maxSize) {
-        throw new Error(`檔案過大，最大支援 25MB，目前檔案大小：${(file.size / 1024 / 1024).toFixed(1)}MB`);
+        throw new Error(`檔案過大，最大支援 30MB，目前檔案大小：${(file.size / 1024 / 1024).toFixed(1)}MB`);
       }
 
       // Validate file type
@@ -103,9 +103,9 @@ export const useAudioProcessing = ({ onSessionCreated, onError }) => {
     }
 
     // Check file size
-    const maxSize = 25 * 1024 * 1024; // 25MB
+    const maxSize = 30 * 1024 * 1024; // 30MB
     if (file.size > maxSize) {
-      errors.push(`檔案過大，最大支援 25MB，目前：${formatFileSize(file.size)}`);
+      errors.push(`檔案過大，最大支援 30MB，目前：${formatFileSize(file.size)}`);
     }
 
     // Check file type

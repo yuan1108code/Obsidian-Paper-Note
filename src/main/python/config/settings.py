@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     
     # Whisper API Settings
     whisper_model: str = "whisper-1"
-    max_file_size_mb: int = 25
+    max_file_size_mb: int = 30
     
     # ChatGPT API Settings
     chatgpt_model: str = "gpt-4-turbo"
