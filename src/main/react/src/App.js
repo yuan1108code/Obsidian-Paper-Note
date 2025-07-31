@@ -6,6 +6,7 @@ import ExportSection from './components/ExportSection';
 import ProgressIndicator from './components/ProgressIndicator';
 import { useWebSocket } from './hooks/useWebSocket';
 import { useAudioProcessing } from './hooks/useAudioProcessing';
+import { initializeApiService, getBackendInfo } from './services/apiService';
 
 function App() {
   const [sessionId, setSessionId] = useState('');
@@ -18,6 +19,11 @@ function App() {
   const [results, setResults] = useState({
     transcript: '',
     summary: ''
+  });
+  const [backendStatus, setBackendStatus] = useState({
+    connected: false,
+    port: null,
+    initializing: true
   });
 
   // Custom hooks for WebSocket and audio processing
@@ -45,6 +51,26 @@ function App() {
       });
     }
   });
+
+  // Initialize API service on component mount
+  useEffect(() => {
+    const initializeAPI = async () => {
+      const success = await initializeApiService();
+      const info = getBackendInfo();
+      
+      setBackendStatus({
+        connected: success,
+        port: info.port,
+        initializing: false
+      });
+      
+      if (success) {
+        console.log(`🚀 Backend connected on port ${info.port}`);
+      }
+    };
+    
+    initializeAPI();
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -86,6 +112,24 @@ function App() {
         <header className="app-header">
           <h1>📝 Obsidian Paper Note</h1>
           <p>論文 Podcast 自動筆記工具 - 一鍵將學術 Podcast 轉換為 Obsidian 筆記</p>
+          
+          {/* Backend Status Indicator */}
+          <div style={{ 
+            margin: '10px 0', 
+            padding: '8px 16px', 
+            backgroundColor: backendStatus.connected ? '#e8f5e8' : backendStatus.initializing ? '#fff3cd' : '#f8d7da',
+            borderRadius: '4px',
+            fontSize: '14px',
+            color: backendStatus.connected ? '#2e7d32' : backendStatus.initializing ? '#856404' : '#721c24'
+          }}>
+            {backendStatus.initializing ? (
+              '🔍 正在檢測後端服務器...'
+            ) : backendStatus.connected ? (
+              `✅ 後端已連接 (localhost:${backendStatus.port})`
+            ) : (
+              '❌ 後端連接失敗 - 請檢查服務器狀態'
+            )}
+          </div>
         </header>
 
         {/* Block A: Input & Control */}

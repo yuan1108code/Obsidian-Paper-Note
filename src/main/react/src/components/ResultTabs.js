@@ -60,11 +60,18 @@ const ResultTabs = ({ transcript, summary, onSummaryChange }) => {
               </button>
               <button
                 id="copy-summary"
-                className="button button-secondary"
+                className="button"
                 onClick={() => copyToClipboard(summary, 'summary')}
-                style={{ padding: '6px 12px', fontSize: '14px' }}
+                style={{ 
+                  padding: '8px 16px', 
+                  fontSize: '15px',
+                  fontWeight: 'bold',
+                  background: '#4caf50',
+                  color: 'white',
+                  border: 'none'
+                }}
               >
-                📋 複製摘要
+                📋 複製為 Markdown
               </button>
             </div>
           </div>
@@ -106,11 +113,18 @@ const ResultTabs = ({ transcript, summary, onSummaryChange }) => {
             </p>
             <button
               id="copy-transcript"
-              className="button button-secondary"
+              className="button"
               onClick={() => copyToClipboard(transcript, 'transcript')}
-              style={{ padding: '6px 12px', fontSize: '14px' }}
+              style={{ 
+                padding: '8px 16px', 
+                fontSize: '15px',
+                fontWeight: 'bold',
+                background: '#2196f3',
+                color: 'white',
+                border: 'none'
+              }}
             >
-              📋 複製逐字稿
+              📋 複製為 Markdown
             </button>
           </div>
           

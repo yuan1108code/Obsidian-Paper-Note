@@ -25,9 +25,9 @@ class Settings(BaseSettings):
     default_paper_path: str = os.getenv("DEFAULT_PAPER_PATH", "Papers/Summaries")
     
     # Server Settings
-    host: str = "0.0.0.0"
-    port: int = 8000
-    debug: bool = True
+    host: str = os.getenv("HOST", "0.0.0.0")
+    port: int = int(os.getenv("PORT", "8000"))
+    debug: bool = os.getenv("DEBUG", "true").lower() == "true"
     
     # File Upload Settings
     upload_dir: str = "uploads"

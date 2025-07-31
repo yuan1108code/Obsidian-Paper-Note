@@ -79,15 +79,19 @@ const ExportSection = ({ paperTitle, content }) => {
         
         <button
           id="copy-button"
-          className="button button-secondary"
+          className="button"
           onClick={handleCopyContent}
           disabled={!content.trim()}
           style={{ 
             padding: '16px',
-            fontSize: '16px'
+            fontSize: '16px',
+            fontWeight: 'bold',
+            background: '#ff9800',
+            color: 'white',
+            border: 'none'
           }}
         >
-          📋 複製筆記內容
+          📋 複製完整 Markdown
         </button>
       </div>
 

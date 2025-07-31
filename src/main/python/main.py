@@ -155,12 +155,12 @@ async def process_audio_background(session_id: str):
         session_data["transcript"] = transcript
         
         await progress_manager.update_progress(
-            session_id, ProcessingStatus.TRANSCRIBING, 50, "語音辨識完成"
+            session_id, ProcessingStatus.TRANSCRIBING, 25, "語音辨識完成"
         )
         
         # Step 2: Summarization
         await progress_manager.update_progress(
-            session_id, ProcessingStatus.SUMMARIZING, 60, "開始生成摘要..."
+            session_id, ProcessingStatus.SUMMARIZING, 30, "開始生成摘要..."
         )
         
         summary = await chatgpt_service.generate_summary(
@@ -169,7 +169,12 @@ async def process_audio_background(session_id: str):
         session_data["summary"] = summary
         
         await progress_manager.update_progress(
-            session_id, ProcessingStatus.COMPLETED, 100, "處理完成！"
+            session_id, ProcessingStatus.SUMMARIZING, 50, "摘要生成完成"
+        )
+        
+        # Step 3: Ready for Obsidian import
+        await progress_manager.update_progress(
+            session_id, ProcessingStatus.COMPLETED, 75, "準備匯入Obsidian..."
         )
         
     except Exception as e:
@@ -203,6 +208,19 @@ async def save_to_obsidian(request: ObsidianSaveRequest):
             file_path=request.file_path
         )
         
+        # Find session ID by content match to update progress
+        session_id = None
+        for sid, data in progress_manager.sessions.items():
+            if data.get("summary") and request.content in data.get("summary", ""):
+                session_id = sid
+                break
+        
+        # Update progress to 100% when Obsidian save is initiated
+        if session_id:
+            await progress_manager.update_progress(
+                session_id, ProcessingStatus.COMPLETED, 100, "已匯入Obsidian！"
+            )
+        
         return ObsidianSaveResponse(
             obsidian_uri=uri,
             success=True,
@@ -225,10 +243,45 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
     except WebSocketDisconnect:
         progress_manager.disconnect(session_id)
 
+def find_available_port(start_port: int = 8000, max_attempts: int = 10) -> int:
+    """Find an available port starting from start_port"""
+    import socket
+    
+    for port in range(start_port, start_port + max_attempts):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(('localhost', port))
+                return port
+        except OSError:
+            continue
+    
+    raise RuntimeError(f"No available port found in range {start_port}-{start_port + max_attempts}")
+
 if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host=settings.host,
-        port=settings.port,
-        reload=settings.debug
-    )
+    try:
+        # Try to use configured port, or find an available one
+        port = settings.port
+        
+        # Test if configured port is available
+        import socket
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(('localhost', port))
+        except OSError:
+            print(f"⚠️  Port {port} is busy, finding alternative...")
+            port = find_available_port(port)
+            print(f"✅ Using port {port} instead")
+        
+        print(f"🚀 Starting Obsidian Paper Note API on {settings.host}:{port}")
+        print(f"📋 Health check: http://localhost:{port}/api/health")
+        print(f"📚 API docs: http://localhost:{port}/docs")
+        
+        uvicorn.run(
+            "main:app",
+            host=settings.host,
+            port=port,
+            reload=settings.debug
+        )
+    except Exception as e:
+        print(f"❌ Failed to start server: {e}")
+        print("Please check if another service is using the ports or try a different port.")

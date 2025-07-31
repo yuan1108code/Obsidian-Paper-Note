@@ -4,14 +4,15 @@ const ProgressIndicator = ({ status, percentage, message }) => {
   const getStatusClass = (status) => {
     if (status === '待命中') return 'status-pending';
     if (status === '錯誤！') return 'status-error';
-    if (status === '3/3 完成！' || status === '處理完成！') return 'status-completed';
+    if (status === '4/4 完成！' || status === '處理完成！' || status === '已匯入Obsidian') return 'status-completed';
     return 'status-processing';
   };
 
   const getStatusIcon = (status) => {
     if (status === '待命中') return '⏳';
     if (status === '錯誤！') return '❌';
-    if (status === '3/3 完成！' || status === '處理完成！') return '✅';
+    if (status === '4/4 完成！' || status === '處理完成！' || status === '已匯入Obsidian') return '✅';
+    if (status.includes('匯入') || status.includes('Obsidian')) return '📥';
     if (status.includes('上傳')) return '📤';
     if (status.includes('語音辨識') || status.includes('辨識')) return '🎤';
     if (status.includes('生成摘要') || status.includes('摘要') || status.includes('重點摘要')) return '🤖';
@@ -20,10 +21,11 @@ const ProgressIndicator = ({ status, percentage, message }) => {
   };
 
   const getProgressSteps = (percentage) => {
-    if (percentage >= 100) return { current: 3, total: 3, step: '完成' };
-    if (percentage >= 60) return { current: 3, total: 3, step: '生成摘要' };
-    if (percentage >= 10) return { current: 2, total: 3, step: '語音辨識' };
-    return { current: 1, total: 3, step: '準備中' };
+    if (percentage >= 100) return { current: 4, total: 4, step: '已匯入Obsidian' };
+    if (percentage >= 75) return { current: 4, total: 4, step: '匯入Obsidian' };
+    if (percentage >= 50) return { current: 3, total: 4, step: '生成摘要' };
+    if (percentage >= 25) return { current: 2, total: 4, step: '語音辨識' };
+    return { current: 1, total: 4, step: '準備中' };
   };
 
   // Don't render if status is pending and no message
@@ -85,13 +87,17 @@ const ProgressIndicator = ({ status, percentage, message }) => {
           <div className="step-dot">📤</div>
           <div className="step-label">檔案上傳</div>
         </div>
-        <div className={`step-item ${percentage >= 50 ? 'completed' : percentage >= 10 ? 'active' : 'pending'}`}>
+        <div className={`step-item ${percentage >= 25 ? 'completed' : percentage >= 10 ? 'active' : 'pending'}`}>
           <div className="step-dot">🎤</div>
           <div className="step-label">語音辨識</div>
         </div>
-        <div className={`step-item ${percentage >= 100 ? 'completed' : percentage >= 60 ? 'active' : 'pending'}`}>
+        <div className={`step-item ${percentage >= 50 ? 'completed' : percentage >= 25 ? 'active' : 'pending'}`}>
           <div className="step-dot">🤖</div>
           <div className="step-label">生成摘要</div>
+        </div>
+        <div className={`step-item ${percentage >= 100 ? 'completed' : percentage >= 75 ? 'active' : 'pending'}`}>
+          <div className="step-dot">📥</div>
+          <div className="step-label">匯入Obsidian</div>
         </div>
       </div>
     </div>
