@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     max_file_size_mb: int = 30
     
     # ChatGPT API Settings
-    chatgpt_model: str = "gpt-4-turbo"
+    chatgpt_model: str = "gpt-4o-mini"
     max_tokens: int = 2000
     temperature: float = 0.3
     

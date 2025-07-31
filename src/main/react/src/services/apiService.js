@@ -10,8 +10,30 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    const message = error.response?.data?.message || error.message || '未知錯誤';
-    console.error('API Error:', message);
+    let message = '未知錯誤';
+    
+    if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
+      message = '無法連接到後端服務器 (localhost:8000)。請確認：\n1. 後端服務器是否已啟動\n2. 端口 8000 是否被佔用\n3. 防火牆是否阻擋連接';
+    } else if (error.code === 'ECONNABORTED') {
+      message = '請求超時。音檔處理可能需要較長時間，請稍候再試。';
+    } else if (error.response) {
+      // Server responded with error status
+      message = error.response.data?.detail || error.response.data?.message || `服務器錯誤 (${error.response.status})`;
+    } else if (error.request) {
+      // Request made but no response received
+      message = '網路連接問題：無法聯繫後端服務器。請檢查：\n1. 網路連接是否正常\n2. 後端服務器是否運行在 localhost:8000';
+    } else {
+      // Something else happened
+      message = error.message || '請求設定錯誤';
+    }
+    
+    console.error('API Error:', {
+      message: error.message,
+      code: error.code,
+      response: error.response?.data,
+      config: error.config?.url
+    });
+    
     throw new Error(message);
   }
 );

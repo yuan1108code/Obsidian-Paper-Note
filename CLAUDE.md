@@ -105,14 +105,26 @@ Before starting ANY task, verify:
 ## 🚀 COMMON COMMANDS
 
 ```bash
-# Development server (to be configured)
-python src/main/python/main.py
+# Start complete development environment (recommended)
+./start-dev.sh
 
-# Run tests (to be configured)
-python -m pytest src/test/
+# Start backend only
+./start-backend.sh
 
-# Install dependencies (to be configured)
-pip install -r requirements.txt
+# Start frontend only  
+./start-frontend.sh
+
+# Manual startup (if needed)
+cd src/main/python && python3 main.py              # Backend on :8000
+cd src/main/react && npm start                     # Frontend on :3000
+
+# Install dependencies
+pip install -r requirements.txt                    # Python backend
+cd src/main/react && npm install                   # React frontend
+
+# Test endpoints
+curl http://localhost:8000/api/health              # Backend health check
+curl http://localhost:3000                         # Frontend health check
 ```
 
 ## 🚨 TECHNICAL DEBT PREVENTION
