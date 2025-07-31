@@ -172,10 +172,34 @@ async def process_audio_background(session_id: str):
             session_id, ProcessingStatus.SUMMARIZING, 50, "摘要生成完成"
         )
         
-        # Step 3: Ready for Obsidian import
+        # Step 3: Auto-import to Obsidian
         await progress_manager.update_progress(
-            session_id, ProcessingStatus.COMPLETED, 75, "準備匯入Obsidian..."
+            session_id, ProcessingStatus.IMPORTING, 75, "正在匯入Obsidian..."
         )
+        
+        # Auto-generate Obsidian URI and complete the process
+        try:
+            # Add small delay to show progress transition
+            await asyncio.sleep(0.5)
+            
+            uri = obsidian_service.generate_uri(
+                title=session_data["paper_title"],
+                content=summary,
+                validate=False  # Skip validation in background task to avoid blocking
+            )
+            
+            # Store Obsidian URI in session data
+            session_data["obsidian_uri"] = uri
+            
+            await progress_manager.update_progress(
+                session_id, ProcessingStatus.COMPLETED, 100, "已成功匯入Obsidian！"
+            )
+            
+        except Exception as obsidian_error:
+            # If Obsidian integration fails, still mark as complete but with warning
+            await progress_manager.update_progress(
+                session_id, ProcessingStatus.COMPLETED, 90, f"摘要完成，Obsidian匯入發生錯誤：{str(obsidian_error)}"
+            )
         
     except Exception as e:
         await progress_manager.update_progress(
@@ -194,7 +218,8 @@ async def get_result(session_id: str):
         "status": session_data.get("status", ProcessingStatus.PENDING),
         "transcript": session_data.get("transcript", ""),
         "summary": session_data.get("summary", ""),
-        "paper_title": session_data.get("paper_title", "")
+        "paper_title": session_data.get("paper_title", ""),
+        "obsidian_uri": session_data.get("obsidian_uri", "")
     }
 
 @app.post("/api/obsidian/save", response_model=ObsidianSaveResponse)
@@ -208,12 +233,14 @@ async def save_to_obsidian(request: ObsidianSaveRequest):
             file_path=request.file_path
         )
         
-        # Find session ID by content match to update progress
-        session_id = None
-        for sid, data in progress_manager.sessions.items():
-            if data.get("summary") and request.content in data.get("summary", ""):
-                session_id = sid
-                break
+        # Use session_id from request if provided, otherwise try to find it
+        session_id = getattr(request, 'session_id', None)
+        if not session_id:
+            # Fallback: Find session ID by content match (legacy support)
+            for sid, data in progress_manager.sessions.items():
+                if data.get("summary") and request.content in data.get("summary", ""):
+                    session_id = sid
+                    break
         
         # Update progress to 100% when Obsidian save is initiated
         if session_id:

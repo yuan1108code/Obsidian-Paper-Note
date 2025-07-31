@@ -5,9 +5,10 @@ from enum import Enum
 class ProcessingStatus(str, Enum):
     PENDING = "待命中"
     UPLOADING = "正在上傳..."
-    TRANSCRIBING = "1/3 正在進行語音辨識..."
-    SUMMARIZING = "2/3 正在生成重點摘要..."
-    COMPLETED = "3/3 完成！"
+    TRANSCRIBING = "1/4 正在進行語音辨識..."
+    SUMMARIZING = "2/4 正在生成重點摘要..."
+    IMPORTING = "3/4 正在匯入Obsidian..."
+    COMPLETED = "4/4 完成！"
     ERROR = "錯誤！"
 
 class AudioUploadRequest(BaseModel):
@@ -36,6 +37,7 @@ class ObsidianSaveRequest(BaseModel):
     content: str = Field(..., description="筆記內容")
     vault_name: Optional[str] = None
     file_path: Optional[str] = None
+    session_id: Optional[str] = None
 
 class ObsidianSaveResponse(BaseModel):
     obsidian_uri: str

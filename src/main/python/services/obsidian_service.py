@@ -11,7 +11,8 @@ class ObsidianService:
         title: str,
         content: str,
         vault_name: Optional[str] = None,
-        file_path: Optional[str] = None
+        file_path: Optional[str] = None,
+        validate: bool = True
     ) -> str:
         """
         Generate Obsidian URI for creating/opening notes
@@ -21,10 +22,18 @@ class ObsidianService:
             content: Note content in Markdown
             vault_name: Obsidian vault name (optional)
             file_path: Custom file path within vault (optional)
+            validate: Whether to validate Obsidian installation (optional)
             
         Returns:
             Obsidian URI string
+            
+        Raises:
+            RuntimeError: If validation enabled and Obsidian not found
         """
+        # Validate Obsidian installation if requested
+        if validate and not self.validate_obsidian_installed():
+            raise RuntimeError("Obsidian 尚未安裝或無法偵測到。請確保 Obsidian 已正確安裝。")
+        
         # Use default vault if not specified
         vault = vault_name or settings.default_obsidian_vault
         
